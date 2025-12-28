@@ -1,0 +1,47 @@
+import express from 'express';
+import passport from 'passport';
+import { 
+  register, 
+  login, 
+  getMe 
+} from '../controllers/authController.js';
+import { 
+  validateRegister, 
+  validateLogin, 
+  validate 
+} from '../middleware/validationMiddleware.js';
+import { protect, generateToken } from '../middleware/authMiddleware.js';
+
+const router = express.Router();
+
+// Public routes
+router.post('/register', validateRegister, validate, register);
+router.post('/login', validateLogin, validate, login);
+
+// Google OAuth routes
+router.get('/google', 
+  passport.authenticate('google', { 
+    scope: ['profile', 'email'],
+    prompt: 'select_account' // Force account selection
+  })
+);
+
+router.get('/google/callback',
+  passport.authenticate('google', { 
+    failureRedirect: `${process.env.FRONTEND_URL}/login`,
+    session: false 
+  }),
+  (req, res) => {
+    console.log('Google OAuth callback successful');
+    console.log('User token:', req.user.token);
+    
+    // Redirect to frontend with token
+    const token = req.user.token;
+    res.redirect(`${process.env.FRONTEND_URL}/login?token=${token}`);
+  }
+);
+
+// Private route
+router.get('/me', protect, getMe);
+
+export default router;
