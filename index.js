@@ -28,6 +28,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
 // Routes
+
+app.get('/', (req, res) => {
+  res.send('CineWave Backend is running');
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/password', passwordRoutes);
 
