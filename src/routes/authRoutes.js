@@ -3,7 +3,8 @@ import passport from 'passport';
 import { 
   register, 
   login, 
-  getMe 
+  getMe, 
+  updateProfile
 } from '../controllers/authController.js';
 import { 
   validateRegister, 
@@ -43,5 +44,7 @@ router.get('/google/callback',
 
 // Private route
 router.get('/me', protect, getMe);
+
+router.post("/profile", protect, updateProfile);
 
 export default router;
