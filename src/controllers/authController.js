@@ -42,6 +42,7 @@ export const login = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        createdAt: user.createdAt,
         token,
       });
     } else {
@@ -65,15 +66,18 @@ export const updateProfile = async (req, res) => {
 
     if (newPassword) {
       if (!currentPassword)
-        return res.status(400).json({ message: "Current password is required" });
+        return res
+          .status(400)
+          .json({ message: "Current password is required" });
 
       const isMatch = await user.matchPassword(currentPassword);
       if (!isMatch)
-        return res.status(401).json({ message: "Current password is incorrect" });
+        return res
+          .status(401)
+          .json({ message: "Current password is incorrect" });
 
       const hashPassword = await bcrypt.hash(newPassword, 10);
       user.password = hashPassword;
-      
     }
 
     const updatedUser = await User.findByIdAndUpdate(req.user._id, user, {
@@ -85,10 +89,10 @@ export const updateProfile = async (req, res) => {
     res.json({
       message: "Profile updated successfully",
       user: {
-         _id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
-        createdAt: user.createdAt,
+        createdAt: user.createdAt
       },
     });
   } catch (error) {
