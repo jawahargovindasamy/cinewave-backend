@@ -33,8 +33,6 @@ router.get('/google/callback',
     session: false 
   }),
   (req, res) => {
-    console.log('Google OAuth callback successful');
-    console.log('User token:', req.user.token);
     
     // Redirect to frontend with token
     const token = req.user.token;

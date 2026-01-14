@@ -4,13 +4,51 @@ import ContinueWatching from "../models/ContinueWatching.js";
 export const upsertContinueWatching = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { mediaType, mediaId, seasonNumber = null, episodeNumber = null } = req.body;
+
+    const {
+      mediaType,
+      mediaId,
+      seasonNumber = null,
+      episodeNumber = null,
+      currentTime = 0,
+      duration = null,
+      progress = 0,
+      status = "watching",
+    } = req.body;
 
     if (!mediaType || !mediaId) {
       return res.status(400).json({
         message: "mediaType and mediaId are required",
       });
     }
+
+    const existing = await ContinueWatching.findOne({
+      user: userId,
+      mediaType,
+      mediaId,
+      seasonNumber,
+      episodeNumber,
+    });
+
+    const now = Date.now();
+
+
+    if (
+      existing &&
+      status !== "completed" &&
+      now - new Date(existing.lastSavedAt).getTime() < 15000
+    ) {
+      return res.status(200).json({ skipped: true });
+    }
+
+    const update = {
+      currentTime,
+      duration,
+      progress,
+      status,
+      lastSavedAt: now,
+      lastWatchedAt: now,
+    };
 
     const entry = await ContinueWatching.findOneAndUpdate(
       {
@@ -20,9 +58,7 @@ export const upsertContinueWatching = async (req, res) => {
         seasonNumber,
         episodeNumber,
       },
-      {
-        lastWatchedAt: new Date(),
-      },
+      update,
       {
         new: true,
         upsert: true,

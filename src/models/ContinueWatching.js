@@ -8,16 +8,19 @@ const continueWatchingSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+
     mediaType: {
       type: String,
       enum: ["movie", "tv"],
       required: true,
       index: true,
     },
+
     mediaId: {
       type: Number,
       required: true,
     },
+
     seasonNumber: {
       type: Number,
       default: null,
@@ -27,26 +30,44 @@ const continueWatchingSchema = new mongoose.Schema(
       type: Number,
       default: null,
     },
-    progress: {
-      type: Number, // seconds watched
-      required: true,
+
+    /** 🔥 REAL PROGRESS */
+    currentTime: {
+      type: Number, // seconds
       default: 0,
       min: 0,
     },
 
     duration: {
-      type: Number, // total duration in seconds
+      type: Number, // seconds
       default: null,
+    },
+
+    progress: {
+      type: Number, // percentage (0–100)
+      default: 0,
+      min: 0,
+      max: 100,
+    },
+
+    status: {
+      type: String,
+      enum: ["watching", "completed"],
+      default: "watching",
+    },
+
+    lastSavedAt: {
+      type: Date,
+      default: Date.now,
     },
 
     lastWatchedAt: {
       type: Date,
       default: Date.now,
+      index: true,
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 continueWatchingSchema.index(
